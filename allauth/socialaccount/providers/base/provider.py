@@ -1,5 +1,6 @@
 from typing import Optional
 
+from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 
 from allauth.account.utils import get_next_redirect_url, get_request_param
@@ -81,6 +82,11 @@ class Provider:
     def get_settings(self):
         return app_settings.PROVIDERS.get(self.id, {})
 
+    def get_domain_uid(self, uid):
+        site = Site.objects.get_current()
+        domain_uid = '%s-%s' % (site.domain, uid)
+        return domain_uid
+
     def sociallogin_from_response(self, request, response):
         """
         Instantiates and populates a `SocialLogin` model based on the data
@@ -102,7 +108,7 @@ class Provider:
         from allauth.socialaccount.models import SocialAccount, SocialLogin
 
         adapter = get_adapter()
-        uid = self.extract_uid(response)
+        uid = self.get_domain_uid(self.extract_uid(response))
         if not isinstance(uid, str):
             raise ValueError(f"uid must be a string: {repr(uid)}")
         if len(uid) > app_settings.UID_MAX_LENGTH:

@@ -183,6 +183,12 @@ class DefaultSocialAccountAdapter(BaseAdapter):
     def serialize_instance(self, instance):
         return serialize_instance(instance)
 
+    def get_import_callback_url(self):
+        """
+        For custom callback view in case of process=import
+        """
+        pass
+
     def list_providers(self, request):
         from allauth.socialaccount.providers import registry
 

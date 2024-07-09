@@ -394,10 +394,16 @@ class SocialLogin(object):
 
     @classmethod
     def stash_state(cls, request, state=None):
+        from django.contrib.sites.models import Site
         if state is None:
             # Only for providers that don't support redirect() yet.
             state = cls.state_from_request(request)
-        return statekit.stash_state(request, state)
+        verifier = statekit.stash_state(request, state)
+        # Append subdomain in state
+        return '{random_data}@{domain}'.format(
+            random_data=verifier,
+            domain=Site.objects.get_current()
+        )
 
     @classmethod
     def unstash_state(cls, request):
